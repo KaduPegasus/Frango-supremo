@@ -99,5 +99,6 @@ export const defaultBusinessInfo: BusinessInfo = {
     openingHours: "Sábados, Domingos e Feriados\n10:00 - 15:00",
     tiktok: "",
     twitter: "",
-    youtube: ""
+    youtube: "",
+    pixKey: "seu-email-pix-aqui",
 };

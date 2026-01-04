@@ -1,10 +1,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Order, OrderStatusType } from '../types';
-import { MotorcycleIcon, MapPinIcon, ReceiptIcon } from './IconComponents';
+import { MotorcycleIcon, MapPinIcon, ReceiptIcon, CreditCardIcon, CheckCircleIcon } from './IconComponents';
 import MapViewModal from './MapViewModal';
 
-const NOTIFICATION_SOUND_BASE64 = 'data:audio/mpeg;base64,SUQzBAAAAAABEVTEuAAAAAANIAAAAAAExhdmY1Ni40MC4xMDGkAAAAAAAAAAAAAAD/+2DEAAEAAAAAFLAAAAoAAAAqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+const NOTIFICATION_SOUND_BASE64 = 'data:audio/mpeg;base64,SUQzBAAAAAABEVTEuAAAAAANIAAAAAAExhdmY1Ni40MC4xMDGkAAAAAAAAAAAAAAD/+2DEAAEAAAAAFLAAAAoAAAAqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
 
 interface DeliveryViewProps {
     activeOrders: Order[];
@@ -86,12 +86,38 @@ const DeliveryView: React.FC<DeliveryViewProps> = ({ activeOrders, onUpdateStatu
         }
     };
     
+    const PaymentInfo: React.FC<{ order: Order }> = ({ order }) => (
+        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
+            <h4 className="font-bold text-amber-800">Informações de Pagamento</h4>
+            <p className="text-amber-700">Método: <span className="font-semibold">{order.paymentMethod}</span></p>
+
+            {order.transactionId ? (
+                 <p className="text-sm font-bold text-green-700 flex items-center gap-2 mt-1">
+                    <CheckCircleIcon className="w-5 h-5" />
+                    PAGAMENTO ONLINE CONFIRMADO
+                </p>
+            ) : order.paymentMethod === 'Cartão (Entrega)' ? (
+                <p className="text-sm font-bold text-red-600 flex items-center gap-2 mt-1">
+                    <CreditCardIcon className="w-5 h-5" />
+                    LEVAR MAQUININHA!
+                </p>
+            ) : order.paymentMethod === 'Dinheiro' && order.changeFor ? (
+                <p className="text-sm font-bold text-green-700 mt-1">
+                    TROCO PARA R$ {order.changeFor.toFixed(2).replace('.', ',')}
+                </p>
+            ) : null}
+        </div>
+    );
+
     const OrderDetails: React.FC<{ order: Order }> = ({ order }) => (
         <div className="bg-white rounded-lg shadow-xl p-6 space-y-4">
             <div>
                 <h3 className="text-xl font-bold text-red-600">Pedido #{order.id.slice(-5)}</h3>
                 <p className="text-lg font-semibold text-slate-800">{order.customerName}</p>
             </div>
+            
+            <PaymentInfo order={order} />
+            
             <div className="border-t pt-4">
                 <h4 className="font-bold text-slate-700">Endereço de Entrega:</h4>
                 <p className="text-slate-600">{order.address}</p>

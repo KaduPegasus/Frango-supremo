@@ -186,3 +186,33 @@ export const CheckCircleIcon: React.FC<{ className?: string }> = ({ className })
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
     </svg>
 );
+
+export const CreditCardIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+        <line x1="1" y1="10" x2="23" y2="10"></line>
+    </svg>
+);
+
+export const PixIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10.15 1.63a.75.75 0 0 0-1.2-1.03L3 5.48a.75.75 0 0 0 0 1.04l5.96 4.88a.75.75 0 0 0 1.2-1.04l-4.2-3.44h.01l4.2-3.3Zm3.7 0 5.96 4.88a.75.75 0 0 1 0 1.04L13.85 12.4a.75.75 0 0 1-1.2-1.04l4.2-3.44h-.01l-4.2-3.3a.75.75 0 0 1 1.2-1.03ZM8.96 11.6a.75.75 0 0 0-1.2 1.04l4.2 3.44h-.01l-4.2 3.3a.75.75 0 1 0 1.2 1.03l5.96-4.88a.75.75 0 0 0 0-1.04L8.95 11.6Zm6.09 0-5.96 4.88a.75.75 0 0 0 0 1.04l5.96 4.88a.75.75 0 1 0 1.2-1.03l-4.2-3.3h.01l4.2-3.44a.75.75 0 1 0-1.2-1.04Z" />
+    </svg>
+);
+
+export const MoneyIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0" />
+        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+    </svg>
+);
+
+export const PagSeguroIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 256 256" fill="currentColor">
+        <path d="M211.2,64H44.8A12.8,12.8,0,0,0,32,76.8V179.2A12.8,12.8,0,0,0,44.8,192h16.11V150.4a24,24,0,0,1,24-24h52.83a8,8,0,0,0,0-16H84.91a40,40,0,0,0-40,40v41.6H44.8a28.8,28.8,0,0,1-28.8-28.8V76.8A28.8,28.8,0,0,1,44.8,48H211.2A28.8,28.8,0,0,1,240,76.8v16.11a8,8,0,0,0,16,0V76.8A44.8,44.8,0,0,0,211.2,32H44.8A44.8,44.8,0,0,0,0,76.8V179.2A44.8,44.8,0,0,0,44.8,224H211.2A44.8,44.8,0,0,0,256,179.2V76.8A12.8,12.8,0,0,0,243.2,64H211.2Z"/>
+    </svg>
+);

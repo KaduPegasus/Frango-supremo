@@ -15,6 +15,9 @@ export interface CartItem {
 
 export type OrderStatusType = 'Recebido' | 'Em Preparo' | 'Pronto para Retirada' | 'Saiu para Entrega' | 'Entregue' | 'Concluído';
 
+// FIX: Added 'Cartão (Online)' to support online credit card payments. This resolves the type error in other components.
+export type PaymentMethod = 'Cartão (Entrega)' | 'Pix' | 'Dinheiro' | 'Cartão (Online)';
+
 export interface Order {
     id: string;
     date: number;
@@ -26,9 +29,12 @@ export interface Order {
     items: CartItem[];
     total: number;
     status: OrderStatusType;
+    paymentMethod: PaymentMethod;
+    changeFor?: number;
+    transactionId?: string; // Adicionado para armazenar o ID da transação
 }
 
-export type View = 'menu' | 'cart' | 'checkout' | 'status' | 'admin' | 'delivery' | 'history';
+export type View = 'menu' | 'cart' | 'checkout' | 'status' | 'admin' | 'delivery' | 'history' | 'search';
 
 export interface ComboItem {
     productId: string;
@@ -55,4 +61,5 @@ export interface BusinessInfo {
     tiktok?: string;
     twitter?: string;
     youtube?: string;
+    pixKey?: string;
 }

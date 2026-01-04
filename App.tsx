@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Product, CartItem, Order, View, Combo, BusinessInfo, OrderStatusType } from './types';
+import { Product, CartItem, Order, View, Combo, BusinessInfo, OrderStatusType, PaymentMethod } from './types';
 import { defaultProducts, defaultCombos, defaultBusinessInfo } from './constants';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
@@ -15,6 +15,11 @@ import DeliveryView from './components/DeliveryView';
 import OrderHistoryView from './components/OrderHistoryView';
 import { ShoppingCartIcon } from './components/IconComponents';
 import FeedbackForm from './components/FeedbackForm';
+import PagSeguroSimulation from './components/PagSeguroSimulation';
+import SearchResultsView from './components/SearchResultsView';
+
+// Define o tipo para os detalhes do pedido antes do pagamento
+type PendingOrderDetails = Omit<Order, 'id' | 'date' | 'status'>;
 
 const App: React.FC = () => {
     const [view, setView] = useState<View>('menu');
@@ -23,6 +28,11 @@ const App: React.FC = () => {
     const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<{ products: Product[], combos: Combo[] }>({ products: [], combos: [] });
+    
+    // Estado para o modal de pagamento
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [orderForPayment, setOrderForPayment] = useState<PendingOrderDetails | null>(null);
 
     const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
         try {
@@ -63,9 +73,43 @@ const App: React.FC = () => {
         if (isAdminAuthenticated) saveToStorage('business-info', businessInfo);
     }, [businessInfo, isAdminAuthenticated]);
 
+    // Efeito para executar a busca com debounce
     useEffect(() => {
-        if (view !== 'menu') setSearchQuery('');
-    }, [view]);
+        const handler = setTimeout(() => {
+            if (searchQuery.trim() === '') {
+                setView(v => v === 'search' ? 'menu' : v); // Volta ao menu se a busca for limpa
+                setSearchResults({ products: [], combos: [] });
+                return;
+            }
+
+            const lowercasedQuery = searchQuery.toLowerCase();
+            
+            // Filtra produtos
+            const filteredProducts = products.filter(p =>
+                p.name.toLowerCase().includes(lowercasedQuery) ||
+                p.description.toLowerCase().includes(lowercasedQuery)
+            );
+
+            // Filtra combos
+            const productMap = new Map(products.map(p => [p.id, p]));
+            const filteredCombos = combos.filter(c => 
+                c.name.toLowerCase().includes(lowercasedQuery) ||
+                c.description.toLowerCase().includes(lowercasedQuery) ||
+                c.items.some(item => {
+                    const product = productMap.get(item.productId);
+                    return product && product.name.toLowerCase().includes(lowercasedQuery);
+                })
+            );
+            
+            setSearchResults({ products: filteredProducts, combos: filteredCombos });
+            setView('search');
+
+        }, 300); // 300ms de debounce
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery, products, combos]);
 
     const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
     const cartTotal = useMemo(() => cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0), [cart]);
@@ -104,20 +148,47 @@ const App: React.FC = () => {
         });
     }, []);
 
-    const handleCheckout = useCallback((customerDetails: Omit<Order, 'items' | 'total' | 'status' | 'id' | 'date'>) => {
-        const newOrder: Order = {
-            id: Date.now().toString(),
-            date: Date.now(),
+    // Etapa 1: Cliente preenche os dados e inicia o processo de checkout
+    const handleInitiateCheckout = useCallback((customerDetails: Omit<Order, 'items' | 'total' | 'status' | 'id' | 'date'>) => {
+        const pendingOrder: PendingOrderDetails = {
             ...customerDetails,
             items: cart,
             total: cartTotal,
-            status: 'Recebido',
         };
-        setActiveOrder(newOrder);
-        setOrderHistory(prevHistory => [newOrder, ...prevHistory]);
+        
+        const isOnlinePayment = customerDetails.paymentMethod === 'Pix' || customerDetails.paymentMethod === 'Cartão (Online)';
+
+        if (isOnlinePayment) {
+            setOrderForPayment(pendingOrder);
+            setIsPaymentModalOpen(true);
+        } else {
+            const newOrder: Order = { ...pendingOrder, id: Date.now().toString(), date: Date.now(), status: 'Recebido' };
+            setActiveOrder(newOrder);
+            setOrderHistory(prev => [newOrder, ...prev]);
+            setCart([]);
+            setView('status');
+        }
+    }, [cart, cartTotal]);
+
+    // Etapa 2: O pagamento é bem-sucedido no modal, então finalizamos o pedido
+    const handlePaymentSuccess = useCallback((transactionId?: string) => {
+        if (!orderForPayment) return;
+
+        const finalOrder: Order = {
+            ...orderForPayment,
+            id: Date.now().toString(),
+            date: Date.now(),
+            status: 'Recebido',
+            transactionId,
+        };
+        
+        setActiveOrder(finalOrder);
+        setOrderHistory(prev => [finalOrder, ...prev]);
         setCart([]);
         setView('status');
-    }, [cart, cartTotal]);
+        setIsPaymentModalOpen(false);
+        setOrderForPayment(null);
+    }, [orderForPayment]);
     
     const startNewOrder = () => {
         setActiveOrder(null);
@@ -129,7 +200,6 @@ const App: React.FC = () => {
         setOrderHistory(prev => 
             prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
         );
-        // Also update the customer's active order if it's the one being changed
         if (activeOrder && activeOrder.id === orderId) {
             setActiveOrder(prev => prev ? { ...prev, status: newStatus } : null);
         }
@@ -173,7 +243,6 @@ const App: React.FC = () => {
     }
 
     const handleLogin = (password: string) => {
-        // In a real app, this should be a secure backend call.
         if (password === 'supremo123') {
             setIsAdminAuthenticated(true);
             setIsLoginModalOpen(false);
@@ -191,7 +260,7 @@ const App: React.FC = () => {
     const activeDeliveryOrders = useMemo(() => 
         orderHistory
             .filter(o => o.orderType === 'Entrega' && o.status !== 'Entregue' && o.status !== 'Concluído')
-            .sort((a, b) => a.date - b.date), // Show oldest orders first
+            .sort((a, b) => a.date - b.date),
     [orderHistory]);
 
     const renderContent = () => {
@@ -199,9 +268,17 @@ const App: React.FC = () => {
             case 'cart':
                 return <CartView cart={cart} total={cartTotal} onUpdateQuantity={updateCartQuantity} onCheckout={() => setView('checkout')} onBack={() => setView('menu')} />;
             case 'checkout':
-                return <CheckoutForm onSubmit={handleCheckout} onBack={() => setView('cart')} />;
+                return <CheckoutForm onSubmit={handleInitiateCheckout} onBack={() => setView('cart')} total={cartTotal} businessInfo={businessInfo} />;
             case 'status':
-                return activeOrder && <OrderStatus order={activeOrder} onNewOrder={startNewOrder} />;
+                return activeOrder && <OrderStatus order={activeOrder} onNewOrder={startNewOrder} businessInfo={businessInfo} />;
+            case 'search':
+                return <SearchResultsView 
+                            query={searchQuery}
+                            results={searchResults}
+                            allProducts={products}
+                            onAddToCart={addToCart}
+                            onAddComboToCart={addComboToCart}
+                        />;
             case 'admin':
                 return isAdminAuthenticated ? <AdminPanel 
                             combos={combos} 
@@ -223,8 +300,8 @@ const App: React.FC = () => {
             default:
                 return (
                     <div className="container mx-auto px-4 py-8 space-y-12">
-                        {!searchQuery && <ComboList combos={combos} onAddComboToCart={addComboToCart} products={products}/>}
-                        <ProductList products={products} onAddToCart={addToCart} searchQuery={searchQuery} />
+                        <ComboList combos={combos} onAddComboToCart={addComboToCart} products={products}/>
+                        <ProductList products={products} onAddToCart={addToCart} />
                     </div>
                 );
         }
@@ -246,22 +323,22 @@ const App: React.FC = () => {
             <main className="flex-grow">
                 {renderContent()}
             </main>
-             {isLoginModalOpen && <LoginModal onLogin={handleLogin} onClose={() => setIsLoginModalOpen(false)} />}
+            {isLoginModalOpen && <LoginModal onLogin={handleLogin} onClose={() => setIsLoginModalOpen(false)} />}
+            {isPaymentModalOpen && orderForPayment && (
+                <PagSeguroSimulation
+                    isOpen={isPaymentModalOpen}
+                    order={orderForPayment}
+                    onClose={() => setIsPaymentModalOpen(false)}
+                    onPaymentSuccess={handlePaymentSuccess}
+                    businessInfo={businessInfo}
+                />
+            )}
             
-            <style>{`
-                .fab-cart-button { display: none; }
-                @media (max-height: 500px) and (orientation: landscape) {
-                    .full-width-cart-button { display: none; }
-                    .fab-cart-button { display: block; }
-                }
-            `}</style>
+            <style>{`.fab-cart-button { display: none; } @media (max-height: 500px) and (orientation: landscape) { .full-width-cart-button { display: none; } .fab-cart-button { display: block; } }`}</style>
 
             {view === 'menu' && cartCount > 0 && (
                 <div className="full-width-cart-button sticky bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t border-stone-200 lg:hidden">
-                    <button
-                        onClick={() => setView('cart')}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-5 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex justify-between items-center"
-                    >
+                    <button onClick={() => setView('cart')} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-5 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex justify-between items-center">
                         <span>Ver Pedido ({cartCount} {cartCount > 1 ? 'itens' : 'item'})</span>
                         <span className="text-lg">R$ {cartTotal.toFixed(2).replace('.', ',')}</span>
                     </button>
@@ -270,11 +347,7 @@ const App: React.FC = () => {
             
             {view === 'menu' && cartCount > 0 && (
                 <div className="fab-cart-button sticky bottom-4 right-4 z-20 lg:hidden">
-                    <button
-                        onClick={() => setView('cart')}
-                        className="relative bg-red-600 text-white w-16 h-16 rounded-full shadow-xl hover:bg-red-700 transition-all duration-300 transform hover:rotate-12 flex items-center justify-center"
-                        aria-label="Ver carrinho de compras"
-                    >
+                    <button onClick={() => setView('cart')} className="relative bg-red-600 text-white w-16 h-16 rounded-full shadow-xl hover:bg-red-700 transition-all duration-300 transform hover:rotate-12 flex items-center justify-center" aria-label="Ver carrinho de compras">
                         <ShoppingCartIcon className="h-8 w-8" />
                         <span className="absolute -top-1 -right-1 block h-6 w-6 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center border-2 border-white">
                             {cartCount}

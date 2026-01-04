@@ -43,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                             </button>
                             <button
                                 onClick={() => onAddToCart(product)}
-                                className="bg-red-600 text-white rounded-full p-2.5 shadow-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                className="bg-red-600 text-white rounded-full p-2.5 shadow-md hover:bg-red-700 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                 aria-label={`Adicionar ${product.name} ao carrinho`}
                             >
                                 <PlusIcon className="h-5 w-5" />

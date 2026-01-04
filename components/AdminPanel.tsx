@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Combo, Product, ComboItem, BusinessInfo } from '../types';
 import { EditIcon, PlusIcon, TrashIcon, StorefrontIcon, PackageIcon, ChickenIcon, XIcon, CheckCircleIcon } from './IconComponents';
@@ -191,6 +192,11 @@ const BusinessInfoForm: React.FC<{
             <input type="text" name="address" placeholder="Endereço" value={formData.address} onChange={handleChange} required className="input-field"/>
             <input type="tel" name="phone" placeholder="Telefone Fixo" value={formData.phone} onChange={handleChange} required className="input-field"/>
             <input type="tel" name="whatsapp" placeholder="Nº do WhatsApp (ex: 55119...)" value={formData.whatsapp} onChange={handleChange} required className="input-field"/>
+            <div>
+                <label htmlFor="pixKey" className="block text-sm font-medium text-stone-700">Chave Pix</label>
+                <input id="pixKey" type="text" name="pixKey" placeholder="Sua Chave Pix (opcional)" value={formData.pixKey || ''} onChange={handleChange} className="input-field mt-1"/>
+                <p className="text-xs text-stone-500 mt-1">Deixe em branco para desativar a opção de pagamento por Pix.</p>
+            </div>
             <input type="url" name="instagram" placeholder="Link do Instagram" value={formData.instagram} onChange={handleChange} className="input-field"/>
             <input type="url" name="facebook" placeholder="Link do Facebook" value={formData.facebook} onChange={handleChange} className="input-field"/>
             <input type="url" name="tiktok" placeholder="Link do TikTok" value={formData.tiktok} onChange={handleChange} className="input-field"/>

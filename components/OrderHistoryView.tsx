@@ -47,7 +47,7 @@ const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ orderHistory, onReo
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-lg text-slate-800">R$ {order.total.toFixed(2).replace('.', ',')}</p>
-                                <p className={`text-sm font-semibold ${order.status === 'Entregue' ? 'text-green-600' : 'text-slate-500'}`}>{order.status}</p>
+                                <p className={`text-sm font-semibold ${order.status === 'Entregue' || order.status === 'Concluído' ? 'text-green-600' : 'text-slate-500'}`}>{order.status}</p>
                             </div>
                         </button>
 
@@ -59,10 +59,17 @@ const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ orderHistory, onReo
                                         <li key={item.product.id}>{item.quantity}x {item.product.name}</li>
                                     ))}
                                 </ul>
-                                <div className="text-sm text-slate-600">
+                                <div className="text-sm text-slate-600 space-y-1">
                                     <p><strong>Cliente:</strong> {order.customerName}</p>
                                     <p><strong>Tipo:</strong> {order.orderType}</p>
                                     {order.orderType === 'Entrega' && <p><strong>Endereço:</strong> {order.address}</p>}
+                                    <p><strong>Pagamento:</strong> {order.paymentMethod}</p>
+                                    {order.paymentMethod === 'Dinheiro' && order.changeFor && (
+                                        <p><strong>Troco para:</strong> R$ {order.changeFor.toFixed(2).replace('.',',')}</p>
+                                    )}
+                                    {order.transactionId && (
+                                        <p><strong>ID Transação:</strong> <span className="font-mono text-xs">{order.transactionId}</span></p>
+                                    )}
                                 </div>
                                 <div className="mt-4 flex justify-end">
                                     <button

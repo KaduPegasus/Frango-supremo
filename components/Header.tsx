@@ -18,6 +18,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, onAdminClick, onDeliveryClick, onHistoryClick, searchQuery, onSearchChange, currentView }) => {
     const [isAnimating, setIsAnimating] = useState(false);
     const prevCartCountRef = useRef(cartCount);
+    const isSearchVisible = currentView === 'menu' || currentView === 'search';
 
     useEffect(() => {
         if (cartCount > prevCartCountRef.current) {
@@ -51,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                     </h1>
                 </div>
 
-                {currentView === 'menu' && (
+                {isSearchVisible && (
                     <div className="relative flex-grow max-w-lg mx-4 hidden md:block">
                         <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
                         <input
@@ -109,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                     </button>
                 </div>
             </div>
-             {currentView === 'menu' && (
+             {isSearchVisible && (
                 <div className="container mx-auto px-4 pb-4 md:hidden">
                     <div className="relative w-full">
                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />

@@ -1,26 +1,75 @@
 
-import React from 'react';
-import { Order, OrderStatusType } from '../types';
-import { CheckCircleIcon } from './IconComponents';
+import React, { useState } from 'react';
+import { Order, OrderStatusType, BusinessInfo } from '../types';
+import { CheckCircleIcon, PixIcon, LinkIcon } from './IconComponents';
 
 interface OrderStatusProps {
     order: Order;
     onNewOrder: () => void;
+    businessInfo: BusinessInfo;
 }
 
 const getStatusForOrderType = (orderType: 'Retirada' | 'Entrega'): OrderStatusType[] => {
     if (orderType === 'Retirada') {
         return ['Recebido', 'Em Preparo', 'Pronto para Retirada', 'Concluído'];
     }
-    return ['Recebido', 'Em Preparo', 'Saiu para Entrega', 'Entregue', 'Concluído'];
+    // For 'Entrega'
+    return ['Recebido', 'Em Preparo', 'Saiu para Entrega', 'Entregue'];
 };
 
-const OrderStatus: React.FC<OrderStatusProps> = ({ order, onNewOrder }) => {
+const PixInstructions: React.FC<{ pixKey: string }> = ({ pixKey }) => {
+    const [copySuccess, setCopySuccess] = useState('');
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(pixKey).then(() => {
+            setCopySuccess('Chave copiada!');
+            setTimeout(() => setCopySuccess(''), 2000);
+        }, () => {
+            setCopySuccess('Falha ao copiar.');
+        });
+    };
+
+    return (
+        <div className="bg-sky-50 border-l-4 border-sky-500 p-4 mt-6 text-left">
+            <div className="flex items-start gap-3">
+                <PixIcon className="w-8 h-8 text-sky-600 flex-shrink-0 mt-1" />
+                <div>
+                    <h4 className="font-bold text-sky-800">Instruções para Pagamento com Pix</h4>
+                    <p className="text-sm text-sky-700 mt-1">
+                        Para confirmar seu pedido, realize a transferência para a chave abaixo e, se possível,
+                        envie o comprovante para nosso WhatsApp.
+                    </p>
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 items-center">
+                        <input
+                            type="text"
+                            value={pixKey}
+                            readOnly
+                            className="w-full sm:w-auto flex-grow px-3 py-2 bg-white border border-sky-300 rounded-md shadow-sm"
+                        />
+                        <button
+                            onClick={copyToClipboard}
+                            className="w-full sm:w-auto bg-sky-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-sky-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                           <LinkIcon className="w-4 h-4" />
+                           {copySuccess || 'Copiar Chave'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+const OrderStatus: React.FC<OrderStatusProps> = ({ order, onNewOrder, businessInfo }) => {
     const applicableStatuses = getStatusForOrderType(order.orderType);
     const currentStatusIndex = applicableStatuses.indexOf(order.status);
     const progressPercentage = applicableStatuses.length > 1 
         ? (currentStatusIndex / (applicableStatuses.length - 1)) * 100 
         : (currentStatusIndex > 0 ? 100 : 0);
+    
+    const isPixPaymentPending = order.paymentMethod === 'Pix' && !order.transactionId;
+    const isPixConfigured = businessInfo.pixKey && businessInfo.pixKey.trim() !== '' && businessInfo.pixKey !== 'seu-email-pix-aqui';
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -30,6 +79,8 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ order, onNewOrder }) => {
                     Pedido Confirmado!
                 </h2>
                 <p className="text-stone-600 mb-8">Obrigado, {order.customerName}! Seu pedido <span className="font-bold">#{order.id.slice(-5)}</span> está sendo preparado.</p>
+
+                {isPixPaymentPending && isPixConfigured && <PixInstructions pixKey={businessInfo.pixKey!} />}
 
                 <div className="my-10">
                     <div className="relative w-full">
@@ -64,6 +115,25 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ order, onNewOrder }) => {
                         ))}
                     </div>
                     <div className="border-t my-4"></div>
+                    <div className="space-y-2 text-stone-700">
+                        <div className="flex justify-between">
+                            <span>Forma de Pagamento:</span>
+                            <span className="font-medium">{order.paymentMethod}</span>
+                        </div>
+                        {order.paymentMethod === 'Dinheiro' && order.changeFor && (
+                             <div className="flex justify-between">
+                                <span>Troco para:</span>
+                                <span className="font-medium">R$ {order.changeFor.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        )}
+                        {order.transactionId && (
+                             <div className="flex justify-between text-sm">
+                                <span>ID da Transação:</span>
+                                <span className="font-mono text-stone-500">{order.transactionId}</span>
+                            </div>
+                        )}
+                    </div>
+                     <div className="border-t my-4"></div>
                      <div className="flex justify-between font-bold text-lg text-stone-900">
                         <span>Total</span>
                         <span>R$ {order.total.toFixed(2).replace('.', ',')}</span>
