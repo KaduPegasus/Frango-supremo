@@ -210,6 +210,7 @@ const App: React.FC = () => {
     
     const handleReorder = useCallback((orderToReorder: Order) => {
         setCart(orderToReorder.items);
+        setSearchQuery(''); // Limpa qualquer busca ativa para evitar confusão
         setView('cart');
     }, []);
     

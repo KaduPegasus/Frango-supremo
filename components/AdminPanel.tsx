@@ -68,9 +68,14 @@ const ComboForm: React.FC<{
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <input type="number" name="price" placeholder="Preço (R$)" value={formData.price} onChange={handleChange} required min="0" step="0.01" className="input-field"/>
                 <div>
-                     <label htmlFor="imageUrl" className="block text-sm font-medium text-stone-700">Imagem do Combo</label>
-                    <input type="file" name="imageUrl" onChange={handleImageChange} accept="image/*" className="mt-1 block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"/>
-                    {imagePreview && <img src={imagePreview} alt="Preview" className="mt-4 w-32 h-32 object-cover rounded-md" width="128" height="128" decoding="async" />}
+                    <label className="block text-sm font-medium text-stone-700">Imagem do Combo</label>
+                    <div className="mt-1 flex items-center gap-4">
+                        {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-md" width="80" height="80" decoding="async" />}
+                        <label htmlFor="combo-image-upload" className="cursor-pointer bg-white py-2 px-3 border border-stone-300 rounded-md shadow-sm text-sm leading-4 font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                            <span>{imagePreview ? 'Trocar imagem' : 'Selecionar imagem'}</span>
+                            <input id="combo-image-upload" name="imageUrl" type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
+                        </label>
+                    </div>
                 </div>
             </div>
             <div>
@@ -151,9 +156,14 @@ const ProductForm: React.FC<{
                 </select>
             </div>
              <div>
-                <label htmlFor="imageUrl" className="block text-sm font-medium text-stone-700">Imagem do Produto</label>
-                <input type="file" name="imageUrl" onChange={handleImageChange} accept="image/*" className="mt-1 block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"/>
-                {imagePreview && <img src={imagePreview} alt="Preview" className="mt-4 w-32 h-32 object-cover rounded-md" width="128" height="128" decoding="async" />}
+                <label className="block text-sm font-medium text-stone-700">Imagem do Produto</label>
+                <div className="mt-1 flex items-center gap-4">
+                    {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-md" width="80" height="80" decoding="async" />}
+                     <label htmlFor="product-image-upload" className="cursor-pointer bg-white py-2 px-3 border border-stone-300 rounded-md shadow-sm text-sm leading-4 font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                        <span>{imagePreview ? 'Trocar imagem' : 'Selecionar imagem'}</span>
+                        <input id="product-image-upload" name="imageUrl" type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
+                    </label>
+                </div>
             </div>
             <div className="pt-4 flex flex-col sm:flex-row-reverse gap-4">
                 <button type="submit" className="btn-primary">Salvar Produto</button>
