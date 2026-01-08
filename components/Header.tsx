@@ -79,6 +79,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                         onClick={onAdminClick}
                         className="p-2 rounded-full hover:bg-stone-100 transition-colors"
                         aria-label="Gerenciar loja"
+                        title="Gerenciar Loja"
                     >
                         <StorefrontIcon className="h-6 w-6 text-stone-600" />
                     </button>
@@ -86,6 +87,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                         onClick={onDeliveryClick}
                         className="p-2 rounded-full hover:bg-stone-100 transition-colors"
                         aria-label="Portal do Entregador"
+                        title="Portal do Entregador"
                     >
                         <MotorcycleIcon className="h-6 w-6 text-stone-600" />
                     </button>
@@ -93,6 +95,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                         onClick={onHistoryClick}
                         className="p-2 rounded-full hover:bg-stone-100 transition-colors"
                         aria-label="Histórico de Pedidos"
+                        title="Histórico de Pedidos"
                     >
                         <ReceiptIcon className="h-6 w-6 text-stone-600" />
                     </button>
@@ -100,6 +103,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onCartClick, onLogoClick, on
                         onClick={onCartClick}
                         className={`relative p-2 rounded-full hover:bg-stone-100 transition-colors ${isAnimating ? 'cart-bounce-animation' : ''}`}
                         aria-label="Ver carrinho de compras"
+                        title="Ver Carrinho"
                     >
                         <ShoppingCartIcon className="h-7 w-7 text-stone-600" />
                         {cartCount > 0 && (

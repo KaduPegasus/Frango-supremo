@@ -15,7 +15,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     return (
         <>
             <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row transition-shadow duration-300 hover:shadow-2xl group">
-                <div className="overflow-hidden md:w-40 flex-shrink-0">
+                <div className="overflow-hidden md:w-2/5 flex-shrink-0">
                     <img 
                         src={product.imageUrl} 
                         alt={product.name} 
@@ -26,9 +26,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
                         height="300"
                     />
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
+                <div className="p-5 flex flex-col flex-grow justify-center">
                     <h3 className="text-lg font-bold text-stone-900">{product.name}</h3>
-                    <p className="text-sm text-stone-600 mt-1 flex-grow">{product.description}</p>
+                    <p className="text-sm text-stone-600 mt-1">{product.description}</p>
                     <div className="mt-4 flex justify-between items-center">
                         <span className="text-xl font-extrabold text-stone-800">
                             R$ {product.price.toFixed(2).replace('.', ',')}

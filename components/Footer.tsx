@@ -61,7 +61,8 @@ const Footer: React.FC<FooterProps> = ({ businessInfo }) => {
                 </div>
                 <div className="border-t border-stone-700 mt-8 pt-6 text-center text-sm text-stone-400">
                     <p>&copy; {new Date().getFullYear()} {businessInfo.name}. Todos os direitos reservados.</p>
-                    <p className="mt-2 text-xs">Desenvolvido com 🍗 e 🔥</p>
+                    <p className="mt-1">Desenvolvido por Satierf Tecnologia</p>
+                    <p className="mt-2 text-xs">Renderizado com 🍗 e 🔥</p>
                 </div>
             </div>
         </footer>

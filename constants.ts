@@ -100,5 +100,5 @@ export const defaultBusinessInfo: BusinessInfo = {
     tiktok: "",
     twitter: "",
     youtube: "",
-    pixKey: "seu-email-pix-aqui",
+    pixKey: "123.456.789-00",
 };

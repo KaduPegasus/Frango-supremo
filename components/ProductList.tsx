@@ -21,14 +21,33 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart }) => {
         }, {} as Record<Product['category'], Product[]>);
     }, [products]);
     
-    // Define a ordem desejada das categorias para garantir um layout consistente.
-    const categoryOrder: Product['category'][] = ['Frango', 'Acompanhamento', 'Bebida'];
+    // Define a ordem de preferência, mas renderiza todas as categorias encontradas.
+    const sortedCategories = useMemo(() => {
+        const preferredOrder: (keyof typeof productsByCategory)[] = ['Frango', 'Acompanhamento', 'Bebida'];
+        const allCategories = Object.keys(productsByCategory) as (keyof typeof productsByCategory)[];
+
+        return allCategories.sort((a, b) => {
+            const indexA = preferredOrder.indexOf(a);
+            const indexB = preferredOrder.indexOf(b);
+
+            if (indexA > -1 && indexB > -1) return indexA - indexB; // Ambos na lista de preferência
+            if (indexA > -1) return -1; // A está na lista, B não
+            if (indexB > -1) return 1;  // B está na lista, A não
+            return a.localeCompare(b); // Nenhum está na lista, ordena alfabeticamente
+        });
+    }, [productsByCategory]);
+    
+    const getCategoryTitle = (category: string) => {
+        if (category === 'Acompanhamento') return 'Acompanhamentos';
+        // Regra simples de pluralização que funciona para os casos comuns (Frango -> Frangos, Bebida -> Bebidas)
+        return `${category}s`;
+    };
 
     return (
         <section>
             <h2 className="text-3xl font-extrabold text-stone-900 mb-6 border-l-4 border-amber-500 pl-4">Monte seu Banquete</h2>
             <div className="space-y-12">
-                {categoryOrder.map(category => {
+                {sortedCategories.map(category => {
                     const categoryProducts = productsByCategory[category];
                     
                     if (!categoryProducts || categoryProducts.length === 0) {
@@ -37,7 +56,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart }) => {
                     
                     return (
                         <div key={category}>
-                            <h3 className="text-2xl font-bold text-stone-800 mb-4">{category === 'Acompanhamento' ? 'Acompanhamentos' : `${category}s`}</h3>
+                            <h3 className="text-2xl font-bold text-stone-800 mb-4">{getCategoryTitle(category)}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {categoryProducts.map(product => (
                                     <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />

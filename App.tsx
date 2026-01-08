@@ -156,12 +156,15 @@ const App: React.FC = () => {
             total: cartTotal,
         };
         
-        const isOnlinePayment = customerDetails.paymentMethod === 'Pix' || customerDetails.paymentMethod === 'Cartão (Online)';
+        // Apenas 'Cartão (Online)' abre o modal de pagamento. Pix agora é tratado como pagamento manual.
+        const isOnlinePayment = customerDetails.paymentMethod === 'Cartão (Online)';
 
         if (isOnlinePayment) {
+            // Para Cartão Online, abre o modal de pagamento
             setOrderForPayment(pendingOrder);
             setIsPaymentModalOpen(true);
         } else {
+            // Para Dinheiro, Cartão na Entrega e Pix, o pedido é criado instantaneamente
             const newOrder: Order = { ...pendingOrder, id: Date.now().toString(), date: Date.now(), status: 'Recebido' };
             setActiveOrder(newOrder);
             setOrderHistory(prev => [newOrder, ...prev]);

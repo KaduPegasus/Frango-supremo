@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { StorefrontIcon, MotorcycleIcon, CreditCardIcon, PixIcon, MoneyIcon } from './IconComponents';
+import { StorefrontIcon, MotorcycleIcon, CreditCardIcon, PixIcon, MoneyIcon, LinkIcon } from './IconComponents';
 import { PaymentMethod, BusinessInfo } from '../types';
 
 interface CheckoutFormProps {
@@ -28,6 +28,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSubmit, onBack, total, bu
     const [notes, setNotes] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(isPixAvailable ? 'Pix' : 'Cartão (Online)');
     const [changeFor, setChangeFor] = useState('');
+    const [copySuccess, setCopySuccess] = useState('');
+
+    const copyToClipboard = () => {
+        if(!businessInfo.pixKey) return;
+        navigator.clipboard.writeText(businessInfo.pixKey).then(() => {
+            setCopySuccess('Copiado!');
+            setTimeout(() => setCopySuccess(''), 2000);
+        }, () => {
+            setCopySuccess('Falha ao copiar.');
+        });
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,7 +89,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSubmit, onBack, total, bu
         gridClass = 'grid-cols-2';
     }
 
-    const isOnlinePayment = paymentMethod === 'Pix' || paymentMethod === 'Cartão (Online)';
+    const isOnlinePayment = paymentMethod === 'Cartão (Online)';
     const inputFieldClasses = "mt-1 w-full p-3 bg-white border border-stone-300 rounded-lg shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500";
 
 
@@ -130,6 +141,40 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSubmit, onBack, total, bu
                             ))}
                         </div>
                     </div>
+                    
+                    {paymentMethod === 'Pix' && isPixAvailable && (
+                        <div className="bg-sky-50 border-l-4 border-sky-500 p-4 mt-4 text-left rounded-r-lg">
+                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                <img 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(businessInfo.pixKey!)}`} 
+                                    alt="QR Code Pix" 
+                                    className="w-32 h-32 object-contain rounded-lg bg-white p-1 shadow-sm"
+                                    width="128" height="128" />
+                                <div className="flex-grow">
+                                    <h4 className="font-bold text-sky-800">Pague com Pix para confirmar</h4>
+                                    <p className="text-sm text-sky-700 mt-1">
+                                        Copie a chave ou leia o QR Code no app do seu banco. Após pagar, clique em "Confirmar Pedido".
+                                    </p>
+                                    <div className="mt-3 relative">
+                                        <input
+                                            type="text"
+                                            value={businessInfo.pixKey!}
+                                            readOnly
+                                            className="w-full pr-28 pl-3 py-2 bg-white border border-sky-300 rounded-md shadow-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={copyToClipboard}
+                                            className="absolute right-1 top-1/2 -translate-y-1/2 bg-sky-600 text-white font-semibold py-1.5 px-3 rounded-md hover:bg-sky-700 transition-colors flex items-center justify-center gap-1 text-sm"
+                                        >
+                                           <LinkIcon className="w-4 h-4" />
+                                           {copySuccess || 'Copiar'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {paymentMethod === 'Dinheiro' && (
                         <div>
