@@ -69,7 +69,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSubmit, onBack, total, bu
     };
     
     const allPaymentOptions: { id: PaymentMethod; label: string; icon: React.ReactElement }[] = [
-        { id: 'Pix', label: 'Pix', icon: <PixIcon className="w-8 h-8 mx-auto mb-2 text-red-600" /> },
+        { id: 'Pix', label: 'Pix', icon: <PixIcon className="w-8 h-8 mx-auto mb-2 text-green-600" /> },
         { id: 'Cartão (Online)', label: 'Cartão Online', icon: <CreditCardIcon className="w-8 h-8 mx-auto mb-2 text-red-600" /> },
         { id: 'Dinheiro', label: 'Dinheiro', icon: <MoneyIcon className="w-8 h-8 mx-auto mb-2 text-stone-500" /> },
         { id: 'Cartão (Entrega)', label: 'Cartão (Entrega)', icon: <CreditCardIcon className="w-8 h-8 mx-auto mb-2 text-stone-500" /> },
@@ -134,7 +134,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onSubmit, onBack, total, bu
                         <span className="block text-sm font-medium text-stone-700">Forma de Pagamento</span>
                         <div className={`mt-2 grid gap-4 ${gridClass}`}>
                             {paymentOptions.map(option => (
-                                <button key={option.id} type="button" onClick={() => setPaymentMethod(option.id)} className={`p-2 rounded-xl border-2 text-center transition-all ${paymentMethod === option.id ? 'bg-red-50 border-red-600 ring-2 ring-red-500' : 'bg-white border-stone-300 hover:border-red-400'}`}>
+                                <button 
+                                    key={option.id} 
+                                    type="button" 
+                                    onClick={() => setPaymentMethod(option.id)} 
+                                    className={`relative p-2 rounded-xl border-2 text-center transition-all ${paymentMethod === option.id ? 'bg-red-50 border-red-600 ring-2 ring-red-500' : 'bg-white border-stone-300 hover:border-red-400'}`}
+                                >
+                                    {option.id === 'Pix' && (
+                                        <span className="absolute -top-2 -right-3 transform rotate-12 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+                                            + Rápido
+                                        </span>
+                                    )}
                                     {option.icon}
                                     <span className="font-bold text-stone-800 text-xs sm:text-sm block">{option.label}</span>
                                 </button>
